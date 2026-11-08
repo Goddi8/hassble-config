@@ -1,50 +1,53 @@
-# HassBle template for VW ID.7 Pro (MEB)
-# Based on the user's Torque PID definitions.
-# The ECU header 17FC007B is split into ATCP17 + ATSHFC007B for ELM327.
-# Verify adapter support and each value on the vehicle before relying on it.
+# HassBle template: VW ID.7 Pro (MEB) – HV battery values
+# BLE UUIDs captured from IOS-VLINK with nRF Connect.
+# MAC omitted; bind the adapter in the app.
+
 templates:
-  - id: vw_id7_pro_meb_hv
-    name: "VW ID.7 Pro (MEB) – HV-Batterie"
-    description: "UDS-HV-Werte aus Torque: SOC, Batteriespannung und Batterietemperatur"
+  - id: vw_id7_pro_meb
+    name: "VW ID.7 Pro (MEB) – HV battery"
+    description: "HV battery SOC, voltage and temperature via IOS-VLINK BLE"
     device:
-      id: vw_id7_pro_meb
-      name: "VW ID.7 Pro – HV-Batterie"
+      id: vw_id7_pro
+      name: "VW ID.7 Pro"
       source: obd
       obd:
-        # Generic BLE ELM327 defaults; adjust if your adapter uses other UUIDs.
-        service_uuid: "FFF0"
-        tx_char_uuid: "FFF2"
-        rx_char_uuid: "FFF1"
-        tx_delay: 100ms
+        service_uuid: "e7810a71-73ae-499d-8c15-faa9aef0c3f2"
+        tx_char_uuid: "bef8d6c9-9c21-4c9e-b632-bd58c1009f9f"
+        rx_char_uuid: "bef8d6c9-9c21-4c9e-b632-bd58c1009f9f"
+        tx_delay: 50ms
+        init_commands: ["ATSP7"]
       sensors:
-        - key: hv_battery_soc
+        - key: hv_battery_soc_bms
+          name: "HV Battery SOC (BMS)"
           mode: "22"
           pid: "028C"
+          formula: "a/2.5"
           pre_commands: ["ATCP17", "ATSHFC007B"]
           update_interval: 10s
-          formula: "a / 2.5"
           unit: "%"
           device_class: battery
           state_class: measurement
           accuracy_decimals: 1
 
         - key: hv_battery_voltage
+          name: "HV Battery Voltage"
           mode: "22"
           pid: "1E3B"
+          formula: "(a*256+b)/4"
           pre_commands: ["ATCP17", "ATSHFC007B"]
           update_interval: 10s
-          formula: "(a * 256 + b) / 4"
           unit: "V"
           device_class: voltage
           state_class: measurement
           accuracy_decimals: 1
 
         - key: hv_battery_temperature
+          name: "HV Battery Temperature"
           mode: "22"
           pid: "2A0B"
+          formula: "a/2-40"
           pre_commands: ["ATCP17", "ATSHFC007B"]
           update_interval: 30s
-          formula: "a / 2 - 40"
           unit: "°C"
           device_class: temperature
           state_class: measurement
