@@ -818,6 +818,7 @@ templates:
       obd:
         init_commands:
           - "ATZ"
+          - "ATD"
           - "ATE0"
           - "ATS0"
           - "ATAL"
@@ -829,7 +830,7 @@ templates:
           name: "HV Battery SOH"
           mode: "22"
           pid: "A029"
-          formula: "round((((parseInt(b*256+c, 16))/10)/((parseInt(d*256+e, 16))/10))*1000)/10"
+          formula: "((f*256+g)/(d*256+e))*100"
           update_interval: "3600s"
           unit: "%"
           device_class: battery
@@ -844,7 +845,7 @@ templates:
           name: "HV Battery SOC"
           mode: "22"
           pid: "A010"
-          formula: "(a/255)*100"
+          formula: "(c/255)*100"
           update_interval: "10s"
           unit: "%"
           device_class: battery
@@ -859,7 +860,7 @@ templates:
           name: "HV Battery Cell Voltage Max"
           mode: "22"
           pid: "A009"
-          formula: "(a*256+b)/1000"
+          formula: "(e*256+f)/1000"
           update_interval: "30s"
           unit: "V"
           device_class: voltage
@@ -889,7 +890,7 @@ templates:
           name: "HV Battery Temperature"
           mode: "22"
           pid: "A009"
-          formula: "e"
+          formula: "j-256*floor(j/128)"
           update_interval: "30s"
           unit: "°C"
           device_class: temperature
@@ -904,7 +905,7 @@ templates:
           name: "HV Battery Voltage"
           mode: "22"
           pid: "A011"
-          formula: "(b*256+c)/10"
+          formula: "(e*256+f)/10"
           update_interval: "10s"
           unit: "V"
           device_class: voltage
@@ -919,7 +920,7 @@ templates:
           name: "HV Battery Current"
           mode: "22"
           pid: "A00A"
-          formula: "((b*256+c)-32768)/20"
+          formula: "((a*256+b)-32768)/20"
           update_interval: "10s"
           unit: "A"
           device_class: current
@@ -934,7 +935,7 @@ templates:
           name: "OBD Voltage"
           mode: "22"
           pid: "A042"
-          formula: "(b*256+c)/1000"
+          formula: "(a*256+b)/1000"
           update_interval: "30s"
           unit: "V"
           device_class: voltage
