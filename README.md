@@ -1,6 +1,6 @@
 # HassBle Config
 
-> This repository stores the device configuration (`config.yaml`) for the [HassBle](https://github.com/eigger/hassble-android) Android app.
+> This repository provides the active base configuration (`config.yaml`) and the importable device-template catalog (`templates.yaml`) for the [HassBle](https://github.com/Goddi8/hassble-android) Android app.
 
 **[한국어 문서 → README.ko.md](README.ko.md) | [Contributing Guide → CONTRIBUTING.md](CONTRIBUTING.md)**
 
@@ -52,8 +52,8 @@ The app loads `config.yaml` when loading/refreshing the Git configuration. The t
 
 Raw URLs (branch `main`):
 
-- Config: `https://raw.githubusercontent.com/eigger/hassble-config/main/config.yaml`
-- Templates: `https://raw.githubusercontent.com/eigger/hassble-config/main/templates.yaml`
+- Config: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/config.yaml`
+- Templates: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/templates.yaml`
 
 ```
 config.yaml                         templates.yaml
