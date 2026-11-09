@@ -809,7 +809,7 @@ templates:
 
   - id: fiat_500e_2020
     name: "Fiat 500e (2020)"
-    description: "UDS-PIDs aus MrPoofy/500ePIDsCals.js; separate ECU-Header für HV-Batterie und Außentemperatur"
+    description: "Fiat 500e (2020): UDS-PIDs aus MrPoofy/500ePIDsCals.js; SOC-Wert ist der rohe BMS-Wert und nicht als Display-SOC kalibriert"
     device:
       id: fiat_500e
       name: "Fiat 500e"
@@ -841,8 +841,8 @@ templates:
             - "ATFCSH18DA44F1"
             - "ATCRA18DAF144"
 
-        - key: hv_battery_soc
-          name: "HV Battery SOC"
+        - key: hv_battery_soc_raw
+          name: "HV Battery SOC (raw BMS)"
           mode: "22"
           pid: "A010"
           formula: "(c/255)*100"
@@ -860,7 +860,7 @@ templates:
           name: "HV Battery Cell Voltage Max"
           mode: "22"
           pid: "A009"
-          formula: "(e*256+f)/1000"
+          formula: "(c*256+d)/1000"
           update_interval: "30s"
           unit: "V"
           device_class: voltage
@@ -876,6 +876,21 @@ templates:
           mode: "22"
           pid: "A009"
           formula: "(c*256+d)/1000"
+          update_interval: "30s"
+          unit: "V"
+          device_class: voltage
+          state_class: measurement
+          accuracy_decimals: 3
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_cell_voltage_delta
+          name: "HV Battery Cell Voltage Delta"
+          mode: "22"
+          pid: "A009"
+          formula: "((c*256+d)-(e*256+f))/1000"
           update_interval: "30s"
           unit: "V"
           device_class: voltage
