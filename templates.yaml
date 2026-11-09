@@ -806,3 +806,156 @@ templates:
             - "ATCRA77A"
             - "ATFCSD300000"
             - "ATFCSM1"
+
+  - id: fiat_500e_2020
+    name: "Fiat 500e (2020)"
+    description: "UDS-PIDs aus MrPoofy/500ePIDsCals.js; separate ECU-Header für HV-Batterie und Außentemperatur"
+    device:
+      id: fiat_500e
+      name: "Fiat 500e"
+      source: obd
+      vehicle_id: fiat_500e
+      obd:
+        init_commands:
+          - "ATZ"
+          - "ATE0"
+          - "ATS0"
+          - "ATAL"
+          - "ATH0"
+          - "ATSP7"
+          - "ATCP18"
+      sensors:
+        - key: hv_battery_soh
+          name: "HV Battery SOH"
+          mode: "22"
+          pid: "A029"
+          formula: "round((((parseInt(b*256+c, 16))/10)/((parseInt(d*256+e, 16))/10))*1000)/10"
+          update_interval: "3600s"
+          unit: "%"
+          device_class: battery
+          state_class: measurement
+          accuracy_decimals: 1
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_soc
+          name: "HV Battery SOC"
+          mode: "22"
+          pid: "A010"
+          formula: "(a/255)*100"
+          update_interval: "10s"
+          unit: "%"
+          device_class: battery
+          state_class: measurement
+          accuracy_decimals: 1
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_voltage_max
+          name: "HV Battery Cell Voltage Max"
+          mode: "22"
+          pid: "A009"
+          formula: "(a*256+b)/1000"
+          update_interval: "30s"
+          unit: "V"
+          device_class: voltage
+          state_class: measurement
+          accuracy_decimals: 3
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_voltage_min
+          name: "HV Battery Cell Voltage Min"
+          mode: "22"
+          pid: "A009"
+          formula: "(c*256+d)/1000"
+          update_interval: "30s"
+          unit: "V"
+          device_class: voltage
+          state_class: measurement
+          accuracy_decimals: 3
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_temperature
+          name: "HV Battery Temperature"
+          mode: "22"
+          pid: "A009"
+          formula: "e"
+          update_interval: "30s"
+          unit: "°C"
+          device_class: temperature
+          state_class: measurement
+          accuracy_decimals: 0
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_voltage
+          name: "HV Battery Voltage"
+          mode: "22"
+          pid: "A011"
+          formula: "(b*256+c)/10"
+          update_interval: "10s"
+          unit: "V"
+          device_class: voltage
+          state_class: measurement
+          accuracy_decimals: 1
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: hv_battery_current
+          name: "HV Battery Current"
+          mode: "22"
+          pid: "A00A"
+          formula: "((b*256+c)-32768)/20"
+          update_interval: "10s"
+          unit: "A"
+          device_class: current
+          state_class: measurement
+          accuracy_decimals: 1
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: obd_voltage
+          name: "OBD Voltage"
+          mode: "22"
+          pid: "A042"
+          formula: "(b*256+c)/1000"
+          update_interval: "30s"
+          unit: "V"
+          device_class: voltage
+          state_class: measurement
+          accuracy_decimals: 2
+          pre_commands:
+            - "ATSHDA44F1"
+            - "ATFCSH18DA44F1"
+            - "ATCRA18DAF144"
+
+        - key: ambient_temperature
+          name: "Ambient Temperature"
+          mode: "22"
+          pid: "013C"
+          formula: "(a/2)-40"
+          update_interval: "30s"
+          unit: "°C"
+          device_class: temperature
+          state_class: measurement
+          accuracy_decimals: 1
+          pre_commands:
+            - "ATSHDA40F1"
+            - "ATFCSH18DA40F1"
+            - "ATCRA18DAF140"
