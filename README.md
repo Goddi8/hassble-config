@@ -85,7 +85,7 @@ vehicle IDs + car Bluetooth MACs   device templates (OBD/BLE + sensors)
 3. Copy `config.yaml` and `templates.yaml` from this repository into the new private repository. Put your real vehicle Bluetooth MAC addresses in the private `config.yaml`; keep the OBD adapter MAC private too, or leave it unset and bind the adapter in the app.
 4. In HassBle → **Sensors**, enter the private `owner/repo` and branch `main`. Create a fine-grained Personal Access Token with **Contents: Read-only** for that repository and enter it in the GitHub token field.
 5. Load/refresh the Git config. Then open **Import template** and use its separate **Refresh** action to load `templates.yaml`.
-6. Import the required device templates, enable the sensors you want, and bind the OBD adapter if its MAC is not included in the template.
+6. Import the required device templates and enable the sensors you want. The public VW template uses a placeholder for `obd.mac`: replace it with your adapter MAC in the private `templates.yaml`, or leave the MAC unset and bind the adapter in the app.
 7. In the **Gateway** tab, enter your HA URL and token (or use OAuth login), then start the gateway. Alternatively, pair vehicle profiles for the optional automatic gateway lifecycle.
 
 > ⚠️ **Never put HA credentials (URL / Token) in either YAML file or the Git repository.**  
