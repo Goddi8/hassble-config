@@ -875,7 +875,7 @@ templates:
           name: "HV Battery Cell Voltage Min"
           mode: "22"
           pid: "A009"
-          formula: "(c*256+d)/1000"
+          formula: "(e*256+f)/1000"
           update_interval: "30s"
           unit: "V"
           device_class: voltage
