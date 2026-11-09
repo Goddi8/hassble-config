@@ -1,5 +1,6 @@
-# HassBle configuration — VW ID.7 Pro (MEB)
-# OBD adapter is bound in the HassBle app; no MAC address is hard-coded.
+# HassBle configuration — VW ID.7 Pro (MEB) + Fiat 500e
+# OBD adapters are bound in the HassBle app; no adapter MAC is hard-coded.
+# Vehicle presence is detected from the car infotainment Bluetooth MAC.
 # The extended CAN header comes from the Torque CSV: 17FC007B.
 version: 1
 
@@ -9,10 +10,22 @@ defaults:
     min_interval: 2s
     heartbeat: 30s
 
+vehicle_presence:
+  enabled: true
+  disconnect_delay_seconds: 30
+  vehicles:
+    - id: vw_id7
+      name: "VW ID.7 Pro"
+      bluetooth_mac: "10:31:2C:D7:E4:5E"
+    - id: fiat_500e
+      name: "Fiat 500e"
+      bluetooth_mac: "8C:8B:5B:27:B7:BD"
+
 devices:
   - id: vw_id7_pro
     name: "VW ID.7 Pro"
     source: obd
+    vehicle_id: vw_id7
     obd:
       # Default HassBle ELM327 BLE characteristics are used until the adapter is bound.
       # If your adapter uses different UUIDs, set them here.
