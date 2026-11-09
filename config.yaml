@@ -16,7 +16,7 @@ vehicle_presence:
   vehicles:
     - id: vw_id7
       name: "VW ID.7 Pro"
-      bluetooth_mac: "10:32:2C:D7:E4:5E"
+      bluetooth_mac: "XX:XX:XX:XX:XX:XX"
     - id: fiat_500e
       name: "Fiat 500e"
-      bluetooth_mac: "8C:8B:5B:27:B7:BD"
+      bluetooth_mac: "XX:XX:XX:XX:XX:XX"
