@@ -32,16 +32,23 @@
 
 ## Repository files
 
-| File | Purpose |
-|------|---------|
-| `config.yaml` | Active gateway configuration (devices the app runs) |
-| `templates.yaml` | Device templates for **Import template** in the Sensors tab |
+| File | Purpose | App action |
+|------|---------|------------|
+| `config.yaml` | Active base configuration: global defaults, vehicle-presence profiles, and optionally direct device definitions. | Loaded when the Git config is loaded/refreshed in the Sensors tab. |
+| `templates.yaml` | Catalog of reusable device profiles, including OBD adapter settings and sensor/PID definitions. | Loaded separately through **Refresh** in the **Import template** picker. |
 
-The app loads both from the repo root on the selected branch (`owner/repo` + branch — file names are fixed).
+Both files live in the repository root and their names are fixed. A template is only a catalog entry: it does **not** become an active device until imported in the app. Imported templates become local draft devices and are merged with the base configuration at runtime.
 
 ## How It Works
 
-The HassBle app downloads `config.yaml` and `templates.yaml` from this repository (fixed file names at repo root), decodes BLE data according to the rules you define, and automatically declares sensors in Home Assistant via the [ws_bridge](https://github.com/eigger/hass-ws-bridge) integration. No code changes are needed — just edit YAML and push.
+The two YAML files serve different purposes:
+
+- **`config.yaml` — active base configuration.** It carries global publish defaults and vehicle-presence profiles. A vehicle entry identifies a car by a stable `id` and the Bluetooth MAC of its infotainment / hands-free or audio connection. This repository keeps the VW and Fiat OBD definitions in the template catalog.
+- **`templates.yaml` — importable device catalog.** Each template describes a complete BLE/OBD device profile: source, adapter connection settings, initialization commands, sensors, PIDs, formulas, and metadata. Importing one creates a local draft device; merely storing it in Git does not activate it.
+
+For multi-vehicle OBD, the template's `device.vehicle_id` must match an `id` in `config.yaml` under `vehicle_presence.vehicles`. The vehicle Bluetooth MAC and the OBD adapter MAC are different addresses.
+
+The app loads `config.yaml` when loading/refreshing the Git configuration. The template picker has its own **Refresh** action for `templates.yaml`. Template loading uses the remote file first, then the app cache, then the bundled offline fallback. After import, HassBle combines local draft devices with the base configuration and declares enabled sensors in Home Assistant via [ws_bridge](https://github.com/eigger/hass-ws-bridge).
 
 Raw URLs (branch `main`):
 
@@ -49,16 +56,23 @@ Raw URLs (branch `main`):
 - Templates: `https://raw.githubusercontent.com/eigger/hassble-config/main/templates.yaml`
 
 ```
-Android Phone (BLE Scan)
-       │  raw bytes
-       ▼
-  HassBle App  ──── config.yaml (this repo) ────▶  decode rules
-       │  decoded value
-       ▼
-  HA WebSocket API  ──────────────────────────────▶  ws_bridge
-       │
-       ▼
-  Home Assistant Entity (sensor / switch / number / …)
+config.yaml                         templates.yaml
+vehicle IDs + car Bluetooth MACs   device templates (OBD/BLE + sensors)
+          │                                   │
+          ▼                                   ▼
+   vehicle presence                   Import template in app
+          │                                   │
+          └──────────┐              local draft device(s)
+                     ▼                       │
+               HassBle effective configuration
+                           │
+                     BLE / OBD polling
+                           │
+                    HA WebSocket API
+                           ▼
+                        ws_bridge
+                           ▼
+                 Home Assistant entities
 ```
 
 ---
@@ -66,17 +80,20 @@ Android Phone (BLE Scan)
 ## Quick Start
 
 1. Fork or copy this repository to your GitHub account.
-2. Edit `config.yaml` to describe your BLE devices. Optionally add device blocks to `templates.yaml` for **Import template** in the app.
-3. In the HassBle app → **Sensors tab** → enter `your-username/hassble-config` and branch `main` (loads `config.yaml` + `templates.yaml` automatically).
-4. In the **Gateway tab**, enter your HA URL and token (or use OAuth login), then start the gateway.
-5. In the **Sensors tab**, enable the sensors you want and they will appear in Home Assistant.
+2. Edit `config.yaml` with global defaults and, for vehicle automation, vehicle IDs and car Bluetooth addresses under `vehicle_presence.vehicles`.
+3. Add or adapt device definitions in `templates.yaml`. For multi-vehicle OBD, each template's `device.vehicle_id` must exactly match an ID from `config.yaml`.
+4. In the HassBle app → **Sensors tab**, enter `your-username/hassble-config` and branch `main`. Load/refresh the Git config, then open **Import template** and use its separate **Refresh** action.
+5. Import the required templates. This adds local draft devices; enable the required sensors and bind an OBD adapter if its MAC is not included in the template.
+6. In the **Gateway tab**, enter your HA URL and token (or use OAuth login), then start the gateway. Alternatively, pair vehicle profiles for the optional automatic gateway lifecycle.
 
-> ⚠️ **Never put HA credentials (URL / Token) in this file.**  
+> ⚠️ **Never put HA credentials (URL / Token) in this repository.**  
 > Enter them only in the app settings.
 
 ---
 
 ## Root Structure
+
+A vehicle-oriented base configuration can be as small as this. Device definitions are optional here when they are maintained as importable entries in `templates.yaml`:
 
 ```yaml
 version: 1
@@ -86,15 +103,28 @@ defaults:
     on_change_only: true
     min_interval: 10s
 
-devices:
-  - id: ...
+vehicle_presence:
+  enabled: true
+  disconnect_delay_seconds: 15
+  vehicles:
+    - id: vw_id7
+      name: "VW ID.7 Pro"
+      bluetooth_mac: "AA:BB:CC:DD:EE:01"
+    - id: fiat_500e
+      name: "Fiat 500e"
+      bluetooth_mac: "AA:BB:CC:DD:EE:02"
 ```
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `version` | int | `1` | Schema version. Always `1`. |
 | `defaults.publish` | object | see below | Default publish filter applied to all sensors. |
-| `devices` | list | `[]` | List of device configurations. |
+| `vehicle_presence` | object | disabled | Vehicle IDs and car Bluetooth identifiers used for vehicle-presence selection. |
+| `devices` | list | `[]` | Optional direct device configurations. Imported templates are stored as local drafts by the app; they do not need to be duplicated here. |
+
+### Vehicle IDs and template linkage
+
+Each `vehicle_presence.vehicles[].id` is a stable logical ID. An imported OBD template associates its device with that ID through `device.vehicle_id`. The vehicle Bluetooth MAC identifies the infotainment / hands-free / audio connection; `obd.mac`, when used, identifies the OBD adapter.
 
 ---
 
