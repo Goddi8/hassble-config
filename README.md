@@ -8,49 +8,52 @@
 
 ## Table of Contents
 
-1. [How It Works](#how-it-works)
-2. [Quick Start](#quick-start)
-3. [Root Structure](#root-structure)
-4. [defaults — Publish Rules](#defaults--publish-rules)
-5. [Device Types](#device-types)
-6. [source: advertisement — BLE Passive Scan](#source-advertisement--ble-passive-scan)
+1. [Repository files](#repository-files)
+2. [How It Works](#how-it-works)
+3. [Quick Start](#quick-start)
+4. [Root Structure](#root-structure)
+   - [Vehicle IDs and template linkage](#vehicle-ids-and-template-linkage)
+5. [defaults — Publish Rules](#defaults--publish-rules)
+6. [Device Types](#device-types)
+7. [source: advertisement — BLE Passive Scan](#source-advertisement--ble-passive-scan)
    - [match — Matching Conditions](#match--matching-conditions)
    - [instance_mode — Entity Strategy](#instance_mode--entity-strategy)
-7. [source: gatt_notify — Active GATT Connection](#source-gatt_notify--active-gatt-connection)
-8. [source: obd — ELM327 OBD Polling](#source-obd--elm327-obd-polling)
-9. [sensors — Sensor Config](#sensors--sensor-config)
-   - [decode — Binary Decoding](#decode--binary-decoding)
-   - [Data Types](#data-types)
-10. [controls — HA Controls](#controls--ha-controls)
-11. [publish — Per-Sensor Filter](#publish--per-sensor-filter)
-12. [OBD Preset List](#obd-preset-list)
-13. [Full Examples](#full-examples)
-14. [Tips & Gotchas](#tips--gotchas)
-15. [Contributing](#contributing)
-
----
+8. [source: gatt_notify — Active GATT Connection](#source-gatt_notify--active-gatt-connection)
+9. [source: obd — ELM327 OBD Polling](#source-obd--elm327-obd-polling)
+10. [sensors — Sensor Config](#sensors--sensor-config)
+    - [decode — Binary Decoding](#decode--binary-decoding)
+    - [Data Types](#data-types)
+11. [controls — HA Controls](#controls--ha-controls)
+12. [publish — Per-Sensor Filter](#publish--per-sensor-filter)
+13. [OBD Preset List](#obd-preset-list)
+14. [Full Examples](#full-examples)
+15. [Tips & Gotchas](#tips--gotchas)
+16. [Contributing](#contributing)
+17. [License](#license)
 
 ## Repository files
 
 | File | Purpose | App action |
 |------|---------|------------|
-| `config.yaml` | Active base configuration: global defaults, vehicle-presence profiles, and optionally direct device definitions. | Loaded when the Git config is loaded/refreshed in the Sensors tab. |
+| `config.yaml` | Active base configuration: global publish defaults, vehicle-presence profiles, and optionally direct device definitions. | Loaded when the Git config is loaded/refreshed in the Sensors tab. |
 | `templates.yaml` | Catalog of reusable device profiles, including OBD adapter settings and sensor/PID definitions. | Loaded separately through **Refresh** in the **Import template** picker. |
 
 Both files live in the repository root and their names are fixed. A template is only a catalog entry: it does **not** become an active device until imported in the app. Imported templates become local draft devices and are merged with the base configuration at runtime.
+
+**Personal vehicle configuration:** This repository is public and intentionally contains placeholder MAC addresses. Do not replace them with your real vehicle or OBD-adapter MAC addresses here. For your own setup, create a separate **private repository** (not a GitHub fork), copy `config.yaml` and `templates.yaml` into it, and put your real vehicle identifiers only in that private copy. A fork of this public repository remains public.
 
 ## How It Works
 
 The two YAML files serve different purposes:
 
-- **`config.yaml` — active base configuration.** It carries global publish defaults and vehicle-presence profiles. A vehicle entry identifies a car by a stable `id` and the Bluetooth MAC of its infotainment / hands-free or audio connection. This repository keeps the VW and Fiat OBD definitions in the template catalog.
+- **`config.yaml` — active base configuration.** It carries global publish defaults and vehicle-presence profiles. A vehicle entry identifies a car by a stable `id` and the Bluetooth MAC of its infotainment / hands-free or audio connection. This public repository keeps the VW and Fiat OBD definitions in the template catalog.
 - **`templates.yaml` — importable device catalog.** Each template describes a complete BLE/OBD device profile: source, adapter connection settings, initialization commands, sensors, PIDs, formulas, and metadata. Importing one creates a local draft device; merely storing it in Git does not activate it.
 
 For multi-vehicle OBD, the template's `device.vehicle_id` must match an `id` in `config.yaml` under `vehicle_presence.vehicles`. The vehicle Bluetooth MAC and the OBD adapter MAC are different addresses.
 
 The app loads `config.yaml` when loading/refreshing the Git configuration. The template picker has its own **Refresh** action for `templates.yaml`. Template loading uses the remote file first, then the app cache, then the bundled offline fallback. After import, HassBle combines local draft devices with the base configuration and declares enabled sensors in Home Assistant via [ws_bridge](https://github.com/eigger/hass-ws-bridge).
 
-Raw URLs (branch `main`):
+Raw URLs below refer to this **public reference repository** (branch `main`). For a private copy, configure the private `owner/repo` and branch in the app; the app reads the files from that repository using your read-only GitHub token.
 
 - Config: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/config.yaml`
 - Templates: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/templates.yaml`
@@ -75,25 +78,22 @@ vehicle IDs + car Bluetooth MACs   device templates (OBD/BLE + sensors)
                  Home Assistant entities
 ```
 
----
-
 ## Quick Start
 
-1. Fork or copy this repository to your GitHub account.
-2. Edit `config.yaml` with global defaults and, for vehicle automation, vehicle IDs and car Bluetooth addresses under `vehicle_presence.vehicles`.
-3. Add or adapt device definitions in `templates.yaml`. For multi-vehicle OBD, each template's `device.vehicle_id` must exactly match an ID from `config.yaml`.
-4. In the HassBle app → **Sensors tab**, enter `your-username/hassble-config` and branch `main`. Load/refresh the Git config, then open **Import template** and use its separate **Refresh** action.
-5. Import the required templates. This adds local draft devices; enable the required sensors and bind an OBD adapter if its MAC is not included in the template.
-6. In the **Gateway tab**, enter your HA URL and token (or use OAuth login), then start the gateway. Alternatively, pair vehicle profiles for the optional automatic gateway lifecycle.
+1. Use this public repository as a reference for the YAML structure and the VW / Fiat template examples.
+2. For a personal setup, create a new **private GitHub repository** (do not use GitHub's **Fork** button, because a fork of this public repository remains public).
+3. Copy `config.yaml` and `templates.yaml` from this repository into the new private repository. Put your real vehicle Bluetooth MAC addresses in the private `config.yaml`; keep the OBD adapter MAC private too, or leave it unset and bind the adapter in the app.
+4. In HassBle → **Sensors**, enter the private `owner/repo` and branch `main`. Create a fine-grained Personal Access Token with **Contents: Read-only** for that repository and enter it in the GitHub token field.
+5. Load/refresh the Git config. Then open **Import template** and use its separate **Refresh** action to load `templates.yaml`.
+6. Import the required device templates, enable the sensors you want, and bind the OBD adapter if its MAC is not included in the template.
+7. In the **Gateway** tab, enter your HA URL and token (or use OAuth login), then start the gateway. Alternatively, pair vehicle profiles for the optional automatic gateway lifecycle.
 
-> ⚠️ **Never put HA credentials (URL / Token) in this repository.**  
+> ⚠️ **Never put HA credentials (URL / Token) in either YAML file or the Git repository.**  
 > Enter them only in the app settings.
-
----
 
 ## Root Structure
 
-A vehicle-oriented base configuration can be as small as this. Device definitions are optional here when they are maintained as importable entries in `templates.yaml`:
+A vehicle-oriented base configuration can be as small as this. Device definitions are optional here when they are maintained as importable entries in `templates.yaml`. The MAC values below are placeholders; put real vehicle addresses only in your private repository.
 
 ```yaml
 version: 1
@@ -125,8 +125,6 @@ vehicle_presence:
 ### Vehicle IDs and template linkage
 
 Each `vehicle_presence.vehicles[].id` is a stable logical ID. An imported OBD template associates its device with that ID through `device.vehicle_id`. The vehicle Bluetooth MAC identifies the infotainment / hands-free / audio connection; `obd.mac`, when used, identifies the OBD adapter.
-
----
 
 ## defaults — Publish Rules
 
@@ -594,6 +592,9 @@ Use `preset: <name>` in OBD sensors to use these built-in definitions. You can o
 ---
 
 ## Full Examples
+
+> The following examples illustrate supported YAML schema patterns. They are not all included in the current import catalog. The current catalog in this repository contains the VW ID.7 and Fiat 500e profiles.
+
 
 ### Example 1 — Jaalee JHT (iBeacon Temperature/Humidity)
 
