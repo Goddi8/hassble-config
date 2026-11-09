@@ -87,7 +87,7 @@ config.yaml                         templates.yaml
 3. 이 저장소의 `config.yaml`과 `templates.yaml`을 새 비공개 저장소로 복사하세요. 실제 차량 Bluetooth MAC은 비공개 `config.yaml`에만 입력하세요. OBD 어댑터 MAC도 비공개로 유지하거나 비워 두고 앱에서 바인딩하세요.
 4. HassBle → **Sensors**에서 비공개 `owner/repo`와 브랜치 `main`을 입력하세요. 해당 저장소만 선택하고 **Contents: Read-only** 권한을 준 fine-grained Personal Access Token을 만들어 GitHub token 필드에 입력하세요.
 5. Git 설정을 불러오거나 새로 고치세요. 그 다음 **템플릿 가져오기**를 열고 별도의 **Refresh**를 눌러 `templates.yaml`을 불러오세요.
-6. 필요한 템플릿을 가져와 사용할 센서를 활성화하고, 템플릿에 OBD MAC이 없으면 앱에서 어댑터를 바인딩하세요.
+6. 필요한 템플릿을 가져와 사용할 센서를 활성화하세요. 공개 VW 템플릿의 `obd.mac`은 자리표시자입니다. 비공개 `templates.yaml`에서 실제 어댑터 MAC으로 바꾸거나 MAC을 비워 두고 앱에서 어댑터를 바인딩하세요.
 7. **Gateway** 탭에서 HA URL과 토큰(OAuth 로그인 가능)을 입력하고 게이트웨이를 시작하세요. 또는 차량 프로필을 페어링하여 선택적 자동 게이트웨이 시작/중지를 사용할 수 있습니다.
 
 > ⚠️ **HA 자격증명(URL / 토큰)을 YAML 파일이나 Git 저장소에 절대 저장하지 마세요.**  
