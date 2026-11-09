@@ -828,7 +828,6 @@ templates:
           - "ATCP18"
       sensors:
         - key: hv_battery_soh
-          name: "HV Battery SOH"
           mode: "22"
           pid: "A029"
           formula: "((f*256+g)/(d*256+e))*100"
@@ -843,7 +842,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_soc_raw
-          name: "HV Battery SOC (raw BMS)"
           mode: "22"
           pid: "A010"
           formula: "(c/255)*100"
@@ -858,7 +856,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_voltage_max
-          name: "HV Battery Cell Voltage Max"
           mode: "22"
           pid: "A009"
           formula: "(c*256+d)/1000"
@@ -873,7 +870,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_voltage_min
-          name: "HV Battery Cell Voltage Min"
           mode: "22"
           pid: "A009"
           formula: "(e*256+f)/1000"
@@ -888,7 +884,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_cell_voltage_delta
-          name: "HV Battery Cell Voltage Delta"
           mode: "22"
           pid: "A009"
           formula: "((c*256+d)-(e*256+f))/1000"
@@ -903,7 +898,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_temperature
-          name: "HV Battery Temperature"
           mode: "22"
           pid: "A009"
           formula: "j-256*floor(j/128)"
@@ -918,7 +912,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_voltage
-          name: "HV Battery Voltage"
           mode: "22"
           pid: "A011"
           formula: "(e*256+f)/10"
@@ -933,7 +926,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: hv_battery_current
-          name: "HV Battery Current"
           mode: "22"
           pid: "A00A"
           formula: "((a*256+b)-32768)/20"
@@ -948,7 +940,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: obd_voltage
-          name: "OBD Voltage"
           mode: "22"
           pid: "A042"
           formula: "(a*256+b)/1000"
@@ -963,7 +954,6 @@ templates:
             - "ATCRA18DAF144"
 
         - key: ambient_temperature
-          name: "Ambient Temperature"
           mode: "22"
           pid: "013C"
           formula: "(a/2)-40"
