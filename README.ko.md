@@ -1,6 +1,6 @@
 # HassBle Config
 
-> 이 저장소는 [HassBle](https://github.com/eigger/hassble-android) Android 앱의 기기 설정 파일(`config.yaml`)을 저장합니다.
+> 이 공개 저장소는 [HassBle](https://github.com/Goddi8/hassble-android) Android 앱용 기본 설정(`config.yaml`)과 가져오기 가능한 기기 템플릿(`templates.yaml`)의 참고 예제를 제공합니다.
 
 **[English Documentation → README.md](README.md) | [기여 가이드 → CONTRIBUTING.ko.md](CONTRIBUTING.ko.md)**
 
@@ -32,51 +32,67 @@
 
 ## 저장소 파일
 
-| 파일 | 용도 |
-|------|------|
-| `config.yaml` | 게이트웨이 운영 설정 (실제로 동작하는 기기 목록) |
-| `templates.yaml` | 센서 탭 **템플릿 가져오기**용 기기 템플릿 |
+| 파일 | 용도 | 앱에서의 동작 |
+|------|------|--------------|
+| `config.yaml` | 전역 발행 기본값, 차량 존재 감지 프로필, 선택적인 직접 기기 정의를 담는 기본 설정 | Sensors 탭에서 Git 설정을 불러오거나 새로 고칠 때 로드 |
+| `templates.yaml` | OBD 어댑터 설정, 센서/PID 정의 등을 포함한 재사용 가능한 기기 템플릿 목록 | **템플릿 가져오기** 창 안의 별도 **Refresh**로 로드 |
 
-앱은 선택한 브랜치의 리포 루트에서 두 파일을 고정 이름으로 불러옵니다 (`owner/repo` + 브랜치).
+두 파일은 저장소 루트에 고정된 이름으로 있어야 합니다. 템플릿은 목록에 존재하는 것만으로 활성화되지 않습니다. 앱에서 직접 가져오면 로컬 초안 기기로 저장되고, 실행 시 기본 설정과 병합됩니다.
+
+**개인 차량 설정:** 이 저장소는 공개되어 있으며 MAC 주소는 자리표시자만 포함합니다. 실제 차량 또는 OBD 어댑터 MAC 주소를 여기에 입력하지 마세요. 개인용으로는 GitHub에서 별도의 **비공개 저장소**를 새로 만드세요. 이 공개 저장소를 Fork하면 공개 상태가 유지되므로 Fork 버튼을 사용하지 말고, `config.yaml`과 `templates.yaml`을 새 비공개 저장소로 복사하세요.
 
 ## 동작 원리
 
-HassBle 앱은 이 저장소에서 `config.yaml`과 `templates.yaml`을 다운로드하고, 정의한 규칙에 따라 BLE 데이터를 디코딩한 뒤, [ws_bridge](https://github.com/eigger/hass-ws-bridge) 통합을 통해 Home Assistant에 자동으로 센서를 등록합니다. 코드 수정 없이 YAML만 편집하면 됩니다.
+두 YAML 파일의 역할은 서로 다릅니다.
 
-Raw URL (브랜치 `main`):
+- **`config.yaml` — 활성 기본 설정:** 전역 발행 기본값과 차량 존재 감지 프로필을 담습니다. 차량 항목은 고유한 `id`와 인포테인먼트/핸즈프리/오디오 Bluetooth MAC 주소로 차량을 식별합니다. 이 공개 저장소에서는 VW와 Fiat의 OBD 정의를 템플릿 카탈로그에 둡니다.
+- **`templates.yaml` — 가져오기 가능한 기기 카탈로그:** 각 템플릿은 BLE/OBD 데이터 소스, 어댑터 연결 설정, 초기화 명령, 센서, PID, 수식 및 메타데이터를 정의합니다. 앱에서 가져와야 로컬 초안 기기가 생성됩니다. Git에 파일이 있다고 자동으로 활성화되지는 않습니다.
 
-- 설정: `https://raw.githubusercontent.com/eigger/hassble-config/main/config.yaml`
-- 템플릿: `https://raw.githubusercontent.com/eigger/hassble-config/main/templates.yaml`
+다중 차량 OBD에서는 템플릿의 `device.vehicle_id`가 `config.yaml`의 `vehicle_presence.vehicles` 아래에 정의된 `id`와 정확히 일치해야 합니다. 차량 Bluetooth MAC과 OBD 어댑터 MAC은 서로 다른 주소입니다.
+
+앱은 Git 설정을 불러오거나 새로 고칠 때 `config.yaml`을 읽습니다. 템플릿 선택 창에는 `templates.yaml`용 별도의 **Refresh**가 있습니다. 템플릿은 원격 저장소 → 앱 캐시 → 앱 내장 오프라인 파일 순으로 대체 로드됩니다. 가져온 뒤 HassBle는 로컬 초안 기기를 기본 설정과 병합하고, 활성화된 센서를 [ws_bridge](https://github.com/eigger/hass-ws-bridge)를 통해 Home Assistant에 등록합니다.
+
+아래 Raw URL은 이 **공개 참고 저장소**의 `main` 브랜치를 가리킵니다. 개인 저장소를 사용하는 경우 앱에 비공개 `owner/repo`와 브랜치를 입력하고, 해당 저장소에 대한 읽기 전용 GitHub 토큰을 설정하세요.
+
+- 설정: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/config.yaml`
+- 템플릿: `https://raw.githubusercontent.com/Goddi8/hassble-config/main/templates.yaml`
 
 ```
-Android Phone (BLE 스캔)
-       │  raw bytes
-       ▼
-  HassBle 앱  ──── config.yaml (이 저장소) ────▶  디코딩 규칙
-       │  디코딩된 값
-       ▼
-  HA WebSocket API  ─────────────────────────────▶  ws_bridge
-       │
-       ▼
-  Home Assistant 엔티티 (sensor / switch / number / …)
+config.yaml                         templates.yaml
+차량 ID + 차량 Bluetooth MAC        기기 템플릿 (OBD/BLE + 센서)
+          │                                   │
+          ▼                                   ▼
+     차량 존재 감지                    앱에서 템플릿 가져오기
+          │                                   │
+          └──────────┐                로컬 초안 기기
+                     ▼                       │
+                HassBle 실행 설정
+                           │
+                     BLE / OBD 폴링
+                           │
+                    HA WebSocket API
+                           ▼
+                        ws_bridge
+                           ▼
+                 Home Assistant 엔티티
 ```
-
----
 
 ## 빠른 시작
 
-1. 이 저장소를 자신의 GitHub 계정으로 Fork 또는 복사합니다.
-2. `config.yaml`을 편집하여 BLE 기기를 정의합니다. 앱에서 빠르게 추가할 블록은 `templates.yaml`에 넣을 수 있습니다.
-3. HassBle 앱 → **Sensors 탭** → `your-username/hassble-config`와 브랜치 `main` 입력 (`config.yaml` + `templates.yaml` 자동 로드).
-4. **Gateway 탭**에서 HA URL과 토큰(또는 OAuth 로그인)을 입력하고 게이트웨이를 시작합니다.
-5. **Sensors 탭**에서 원하는 센서를 활성화하면 Home Assistant에 나타납니다.
+1. 이 공개 저장소는 YAML 구조와 VW / Fiat 템플릿 예제를 참고하는 용도로 사용하세요.
+2. 개인용으로는 새 **비공개 GitHub 저장소**를 만드세요. 이 공개 저장소를 Fork하면 계속 공개 상태이므로 Fork 버튼을 사용하지 마세요.
+3. 이 저장소의 `config.yaml`과 `templates.yaml`을 새 비공개 저장소로 복사하세요. 실제 차량 Bluetooth MAC은 비공개 `config.yaml`에만 입력하세요. OBD 어댑터 MAC도 비공개로 유지하거나 비워 두고 앱에서 바인딩하세요.
+4. HassBle → **Sensors**에서 비공개 `owner/repo`와 브랜치 `main`을 입력하세요. 해당 저장소만 선택하고 **Contents: Read-only** 권한을 준 fine-grained Personal Access Token을 만들어 GitHub token 필드에 입력하세요.
+5. Git 설정을 불러오거나 새로 고치세요. 그 다음 **템플릿 가져오기**를 열고 별도의 **Refresh**를 눌러 `templates.yaml`을 불러오세요.
+6. 필요한 템플릿을 가져와 사용할 센서를 활성화하고, 템플릿에 OBD MAC이 없으면 앱에서 어댑터를 바인딩하세요.
+7. **Gateway** 탭에서 HA URL과 토큰(OAuth 로그인 가능)을 입력하고 게이트웨이를 시작하세요. 또는 차량 프로필을 페어링하여 선택적 자동 게이트웨이 시작/중지를 사용할 수 있습니다.
 
-> ⚠️ **HA 자격증명(URL / 토큰)을 이 파일에 절대 저장하지 마세요.**  
+> ⚠️ **HA 자격증명(URL / 토큰)을 YAML 파일이나 Git 저장소에 절대 저장하지 마세요.**  
 > 앱 설정에서만 입력하세요.
 
----
-
 ## 루트 구조
+
+차량 자동화에 사용하는 기본 설정은 다음처럼 간단하게 유지할 수 있습니다. 기기 정의를 `templates.yaml`의 가져오기 가능한 항목으로 관리한다면 `devices` 목록은 생략할 수 있습니다. 아래 MAC 주소는 자리표시자이며 실제 주소는 비공개 저장소에만 입력하세요.
 
 ```yaml
 version: 1
@@ -86,17 +102,28 @@ defaults:
     on_change_only: true
     min_interval: 10s
 
-devices:
-  - id: ...
+vehicle_presence:
+  enabled: true
+  disconnect_delay_seconds: 15
+  vehicles:
+    - id: vw_id7
+      name: "VW ID.7 Pro"
+      bluetooth_mac: "AA:BB:CC:DD:EE:01"
+    - id: fiat_500e
+      name: "Fiat 500e"
+      bluetooth_mac: "AA:BB:CC:DD:EE:02"
 ```
 
 | 필드 | 타입 | 기본값 | 설명 |
 |------|------|--------|------|
 | `version` | int | `1` | 스키마 버전. 항상 `1`. |
 | `defaults.publish` | object | 아래 참조 | 모든 센서에 적용되는 기본 발행 필터. |
-| `devices` | list | `[]` | 기기 설정 목록. |
+| `vehicle_presence` | object | 비활성 | 차량 ID와 차량 Bluetooth 식별자를 설정합니다. |
+| `devices` | list | `[]` | 선택적인 직접 기기 정의입니다. 앱에서 가져온 템플릿은 로컬 초안으로 저장되므로 여기에 중복 정의할 필요가 없습니다. |
 
----
+### 차량 ID와 템플릿 연결
+
+각 `vehicle_presence.vehicles[].id`는 안정적인 논리 ID입니다. 가져온 OBD 템플릿은 `device.vehicle_id`를 통해 이 ID와 연결됩니다. 차량 Bluetooth MAC은 인포테인먼트/핸즈프리/오디오 연결을 식별하고, `obd.mac`은 OBD 어댑터를 식별합니다.
 
 ## defaults — 발행 규칙
 
@@ -613,6 +640,9 @@ OBD 센서에서 `preset: <이름>`으로 내장 정의를 사용합니다. 프�
 ---
 
 ## 전체 예제
+
+> 아래 예제는 지원되는 YAML 스키마 패턴을 설명합니다. 현재 템플릿 가져오기 카탈로그의 모든 항목을 나타내지는 않습니다. 이 저장소의 현재 카탈로그에는 VW ID.7과 Fiat 500e 프로필이 포함되어 있습니다.
+
 
 ### 예제 1 — Jaalee JHT (iBeacon 온도·습도)
 
